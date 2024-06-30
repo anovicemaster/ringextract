@@ -34,7 +34,6 @@ typedef enum {
     RC_TOKEN_PARSING_ERROR,
 
     RC_CURL_INIT_FAILED,
-    RC_CURL_HTTP_STATUS,
     RC_CURL_TRANSFER_FAILED
 
 } TokenError;
@@ -70,9 +69,8 @@ typedef struct {
     time_t expires_in;
     size_t avail_size;
 
-    long s_HTTP;
-    CURLcode s_CURL;
     TokenError s_token;
+    char error[CURL_ERROR_SIZE];
 
 } BearerToken;
 

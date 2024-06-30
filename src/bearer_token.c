@@ -19,14 +19,11 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "status.h"
 #include "bearer_token.h"
 #include "rate_limiter.h"
 
 #define MAX(X, Y) (X > Y ? X : Y)
 #define MIN(X, Y) (X < Y ? X : Y)
-
-extern void rc_curl_set_limit(BearerToken* token, CURL* curl, uint64_t attempt, uint64_t timeout);
 
 /** Official response structure (application/json)
  * 
@@ -114,16 +111,16 @@ static TokenError rc_token_request(BearerToken* token) {
 
     if (curl) {
 
-        curl_easy_setopt(curl, CURLOPT_URL,        token->server_url);
-        curl_easy_setopt(curl, CURLOPT_USERNAME,   token->client_id);
-        curl_easy_setopt(curl, CURLOPT_PASSWORD,   token->client_secret);
+        curl_easy_setopt(curl, CURLOPT_URL       , token->server_url);
+        curl_easy_setopt(curl, CURLOPT_USERNAME  , token->client_id);
+        curl_easy_setopt(curl, CURLOPT_PASSWORD  , token->client_secret);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, token->jwt);
 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, rc_token_save);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, token);
+        curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, token->error);
         curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1);
 
-        token->s_CURL = curl_easy_perform(curl);
         rc_curl_set_limit(token, curl, 0, 0);
         curl_easy_cleanup(curl);
 
@@ -175,10 +172,10 @@ static TokenError rc_token_materialize(BearerToken* token) {
 
     if (id && secret && jwt) {
 
-        token->jwt =           rc_token_memcpy(token, jwt, strlen(jwt) + 1);
-        token->jwt =           rc_token_memcpy(token, POST_TEXT, POST_SIZE);
+        token->jwt           = rc_token_memcpy(token, jwt, strlen(jwt) + 1);
+        token->jwt           = rc_token_memcpy(token, POST_TEXT, POST_SIZE);
         token->client_secret = rc_token_memcpy(token, secret, strlen(secret) + 1);
-        token->client_id =     rc_token_memcpy(token, id, strlen(id) + 1);
+        token->client_id     = rc_token_memcpy(token, id, strlen(id) + 1);
 
     } else { token->s_token = RC_MISSING_CREDENTIALS; }
 
@@ -186,6 +183,51 @@ static TokenError rc_token_materialize(BearerToken* token) {
 
 #undef POST_TEXT
 #undef POST_SIZE
+
+}
+
+static TokenError rc_curl_set_error(BearerToken* token) {
+
+    const char* message = NULL;
+
+    switch (token->s_token) {
+
+    case RC_TOKEN_OK:
+        memset(token->error, 0, CURL_ERROR_SIZE);
+        return token->s_token;
+
+    case RC_TOKEN_UNINITIALIZED:
+        message = "Token has not been materialized.";
+        break;
+
+    case RC_TOKEN_OUT_OF_SPACE:
+        message = "Insufficient space: credentials are too long.";
+        break;
+
+    case RC_MISSING_CREDENTIALS:
+        message = "Missing credentials.";
+        break;
+
+    case RC_TOKEN_PARSING_ERROR:
+        message = "Token parsing error: unknown access token format.";
+        break;
+
+    case RC_CURL_INIT_FAILED:
+        message = "CURL initialization failed.";
+        break;
+
+    case RC_CURL_TRANSFER_FAILED:
+        // Error message is already written in buffer by libcurl
+        // Fall through and return
+    
+    default:
+        return token->s_token;
+
+    }
+
+    const size_t length = strlen(message) + 1;
+    memcpy(token->error, message, length);
+    return token->s_token;
 
 }
 
@@ -206,6 +248,7 @@ TokenError rc_curl_set_token(BearerToken* token, CURL* curl) {
 
         curl_easy_setopt(curl, CURLOPT_XOAUTH2_BEARER, token->access_token);
         curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_BEARER);
+        curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, token->error);
         curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1);
 
     }
@@ -216,13 +259,9 @@ TokenError rc_curl_set_token(BearerToken* token, CURL* curl) {
 
 TokenError rc_curl_auto_perform(BearerToken* token, CURL* curl) {
 
-    if (rc_curl_set_token(token, curl) == RC_TOKEN_OK) {
-
-        token->s_CURL = curl_easy_perform(curl);
-        rc_curl_set_limit(token, curl, MAX_RETRY_ATTEMPT, MIN_RETRY_TIMEOUT);
-
-    }
-
-    return token->s_token;
+    if (rc_curl_set_token(token, curl) == RC_TOKEN_OK)
+    {   rc_curl_set_limit(token, curl, MAX_RETRY_ATTEMPT, MIN_RETRY_TIMEOUT); }
+    
+    return rc_curl_set_error(token);
 
 }

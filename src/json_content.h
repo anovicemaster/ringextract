@@ -67,7 +67,7 @@ void rc_json_get_buffer(BearerToken* token, JsonContent* json, const char* url);
 /// @attention This function does not support page loop. For paginated endpoints,
 ///            use rc_json_get_buffer, then (optionally) rc_json_fwrite instead.
 /// @param token pointer to a BearerToken (can be just a skeleton)
-/// @param file full path & file name to be written
+/// @param file full path & file name to be written. If null, writing to stdout
 /// @param url full url
 /// @return if written successfully, the file name (same as the file argument);
 ///         otherwise, NULL
@@ -75,7 +75,7 @@ const char* rc_json_get_file(BearerToken* token, const char* file, const char* u
 
 /// @brief Write JsonContent buffer to file
 /// @param json pointer to a JsonContent container
-/// @param file full path & file name to be written
+/// @param file full path & file name to be written. If null, writing to stdout
 /// @return if written successfully, the file nmae (same as the file argument);
 ///         otherwise, NULL
 const char* rc_json_fwrite(JsonContent* json, const char* file);

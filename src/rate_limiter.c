@@ -17,9 +17,7 @@
  */
 
 #include <unistd.h>
-
-#include "bearer_token.h"
-#include "status.h"
+#include "rate_limiter.h"
 
 extern TokenError rc_curl_set_token(BearerToken* token, CURL* curl);
 
@@ -63,14 +61,17 @@ static inline void rc_limiter_503_timeout(uint64_t* timeout) {
 
 void rc_curl_set_limit(BearerToken* token, CURL* curl, uint64_t attempt, uint64_t timeout) {
 
-    if (token->s_CURL != CURLE_OK && token->s_CURL != CURLE_HTTP_RETURNED_ERROR) {
+    long status;
+    CURLcode result = curl_easy_perform(curl);
+
+    if (result != CURLE_OK && result != CURLE_HTTP_RETURNED_ERROR) {
 
         token->s_token = RC_CURL_TRANSFER_FAILED;
         return;
 
-    } else { curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &token->s_HTTP); }
+    } else { curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status); }
 
-    switch (token->s_HTTP) {
+    switch (status) {
 
     case HTTP_OK:
         rc_limiter_200_timeout(curl);
@@ -80,12 +81,12 @@ void rc_curl_set_limit(BearerToken* token, CURL* curl, uint64_t attempt, uint64_
         rc_limiter_429_timeout(curl);
         break;
 
-    case HTTP_SERVICE_UNAVAILABLE: 
+    case HTTP_SERVICE_UNAVAILABLE:
         rc_limiter_503_timeout(&timeout);
         break;
     
     default: // TODO: evaluate necessary fallback for other HTTP status codes
-        token->s_token = RC_CURL_HTTP_STATUS;
+        token->s_token = RC_CURL_TRANSFER_FAILED;
         return;
 
     }
@@ -94,11 +95,10 @@ void rc_curl_set_limit(BearerToken* token, CURL* curl, uint64_t attempt, uint64_
 
         if (rc_curl_set_token(token, curl) == RC_TOKEN_OK) {
 
-            token->s_CURL = curl_easy_perform(curl);
             rc_curl_set_limit(token, curl, attempt - 1, timeout);
 
         } else { /* defer to the error code set by rc_curl_set_token() */ }
 
-    } else { token->s_token = RC_CURL_HTTP_STATUS; }
+    } else { token->s_token = RC_CURL_TRANSFER_FAILED; }
     
 }

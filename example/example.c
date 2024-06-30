@@ -68,12 +68,43 @@ int main(void) {
      */
     rc_json_get_buffer(token, json, RC_DEFAULT_EXTENSION);
     
-    if (token->s_token != RC_TOKEN_OK) { printf("HTTP error: %i\n", token->s_HTTP); }
+    /**
+     * Check the TokenError code after the rc_json_get_buffer transfer(s).
+     * The only success code is RC_TOKEN_OK; any other code indicates a failure.
+     * In case of failures, error messages are stored in the error buffer of token.
+     * Print the error buffer the same way as printing any const char*
+     */
+    if (token->s_token != RC_TOKEN_OK) { printf("%s\n", token->error); }
+
+    /**
+     * If the transfer(s) succeeded, we can write the json contents to a file
+     * by providing a pointer to JsonContent and a file name to rc_json_fwrite.
+     * If the provided file name cannot be opened for writing, NULL is returned.
+     * Otherwise, the contents are written and the same file name is returned.
+     */
     else if (rc_json_fwrite(json, "ext.json") == NULL) { printf("FILE error\n"); }
+
+    /**
+     * If the file was written successfully, we print the number of bytes
+     * written as a confirmation. That information is found in the n_bytes
+     * member variable in each JsonContent struct.
+     */
     else { printf("%lu bytes written\n", json->n_bytes); }
 
     RC_JSON_FREE(json); // free the JsonContent container
 
+    /**
+     * This is a one-liner that sends a GET request to the sites endpoint,
+     * then directly prints the response payload to stdout without using a JsonContent.
+     * It re-uses the token declared above.
+     */
+    rc_json_get_file(token, NULL, RC_DEFAULT_SITES);
+
+    // Prints error message (if applicable), same as example above.
+    if (token->s_token != RC_TOKEN_OK) { printf("%s\n", token->error); }
+
+    // No need to free anything here. No memory allocation in rc_json_get_file.
+    // Do not free the token. It is entirely stored on the stack.
     return 0;
 
 }

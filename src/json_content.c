@@ -152,7 +152,7 @@ const char* rc_json_get_file(BearerToken* token, const char* file, const char* u
     CURL* curl = curl_easy_init();
     if (!curl) { token->s_token = RC_CURL_INIT_FAILED; return NULL; }
 
-    FILE* f = fopen(file, "w");
+    FILE* f = file ? fopen(file, "w") : stdout;
 
     if (f) {
 
@@ -161,9 +161,10 @@ const char* rc_json_get_file(BearerToken* token, const char* file, const char* u
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, f);
 
         rc_curl_auto_perform(token, curl);
-        fclose(f);
-
         curl_easy_cleanup(curl);
+
+        if (file) { fclose(f); }   // If file is null, f is stdout. Do not close.
+        else { fprintf(f, "\n"); } // For stdout, print an additional new line.
         return file;
 
     } else {
@@ -179,14 +180,15 @@ const char* rc_json_fwrite(JsonContent* json, const char* file) {
 
     if (json->n_bytes == 0) { return NULL; }
 
-    FILE* f = fopen(file, "w");
+    FILE* f = file ? fopen(file, "w") : stdout;
 
     if (f) {
 
         fwrite(json->buffer, 1, json->n_bytes, f);
         fflush(f);
-        fclose(f);
 
+        if (file) { fclose(f); }   // If file is null, f is stdout. Do not close.
+        else { fprintf(f, "\n"); } // For stdout, print an additional new line.
         return file;
 
     } else { return NULL; }
