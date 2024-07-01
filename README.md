@@ -1,7 +1,9 @@
 
-# RingEX C Interface for Data Extraction
+# RingEXtract
 
 ### Warning: This repository is provided for educational and/or development purposes ONLY. Use in production AT YOUR OWN RISK.
+
+There are many existing RingCentral SDKs that cover various programming languages, but I have yet to find one in C/C++ so I'm providing my own. **This is not a full SDK, but an interface focused solely on data extraction from the RingEX API.**
 
 ### Goals:
 - Provide the simplest possible interface that gets the job done
