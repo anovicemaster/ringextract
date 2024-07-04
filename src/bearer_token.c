@@ -52,12 +52,12 @@ static const char* rc_char_extract(char** json, size_t* n) {
 
     const char* token = NULL;
 
-    while (range > cursor - origin) {
+    while (range > (size_t)(cursor - origin)) {
         if (cursor[0] < '0') { cursor++; }
         else { token = cursor; break; }
     }
 
-    while (range > cursor - origin) {
+    while (range > (size_t)(cursor - origin)) {
         if (cursor[0] >= '0') { cursor++; }
         else { cursor[0] = '\0'; break; }
     }

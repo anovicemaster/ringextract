@@ -39,7 +39,7 @@ static size_t rc_curl_write_json(char* contents, size_t size, size_t nitems, voi
         
     } else {
         
-        head = memchr(contents, '[', chunk_size) + 1;
+        head = (char*)memchr(contents, '[', chunk_size) + 1;
         if (head - 1) { n_bytes = chunk_size - (head - contents); }
         else { return chunk_size; }
         
@@ -104,11 +104,12 @@ static void rc_curl_next_page(JsonContent* json) {
     if (cursor > json->buffer) { // possibly paginated endpoints
 
         json->url_next_page = strstr(cursor + 1, "\"nextPage\"");
-        if (!json->url_next_page) { return rc_json_bridge(cursor, json->buffer); }
-        else { json->url_next_page += 10; }
+        if (json->url_next_page) { json->url_next_page += 10; }
+        else { rc_json_bridge(cursor, json->buffer); return; }
         
         json->url_next_page = strstr(json->url_next_page, "https://");
-        if (!json->url_next_page) { return rc_json_bridge(cursor, json->buffer); }
+        if (json->url_next_page) { }
+        else { rc_json_bridge(cursor, json->buffer); return; }
 
         size_t n = json->n_bytes - (json->url_next_page - json->buffer);
         json->n_bytes = cursor - json->buffer + 1;
@@ -143,7 +144,7 @@ void rc_json_get_buffer(BearerToken* token, JsonContent* json, const char* url) 
 
     } while (json->url_next_page);
     
-    return curl_easy_cleanup(curl);
+    curl_easy_cleanup(curl);
     
 }
 
