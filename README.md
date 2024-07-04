@@ -12,13 +12,13 @@ There are many existing RingCentral SDKs/libraries/packages covering various pro
 - JWT flow implementation + access token management
 - Built-in wait timeout + automatic retry mechanism
 - Built-in page loop (for paginated JSON resources)
-- URL presets for some common endpoints (call-log, phone-number, extension, etc.)
+- URL presets for 40+ common endpoints
 
 ### Limitations:
 - HTTP GET requests only
 - JWT flow only
 - No batch requests (endpoints suitable for bulk extraction typically do not support batch requests anyways)
-- Limited testing performed over selected endpoints
+- No multi-threading support yet - may add in the future
 - Not compatible with Windows
 
 ### Dependencies:
