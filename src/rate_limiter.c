@@ -19,8 +19,6 @@
 #include <unistd.h>
 #include "rate_limiter.h"
 
-extern TokenError rc_curl_set_token(BearerToken* token, CURL* curl);
-
 static inline void rc_limiter_200_timeout(CURL* curl) {
 
 #define RLA200 "x-rate-limit-remaining"

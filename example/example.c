@@ -66,7 +66,7 @@ int main(void) {
      * GET request to the extension endpoint,
      * then store the response payload in memory in the JsonContent container
      */
-    rc_json_get_buffer(token, json, RC_DEFAULT_EXTENSION);
+    rc_json_get_buffer(token, json, RC_GET_EXTENSION);
     
     /**
      * Check the TokenError code after the rc_json_get_buffer transfer(s).
@@ -98,7 +98,7 @@ int main(void) {
      * then directly prints the response payload to stdout without using a JsonContent.
      * It re-uses the token declared above.
      */
-    rc_json_get_file(token, NULL, RC_DEFAULT_SITES);
+    rc_json_get_file(token, NULL, RC_GET_SITES);
 
     // Prints error message (if applicable), same as example above.
     if (token->s_token != RC_TOKEN_OK) { printf("%s\n", token->error); }

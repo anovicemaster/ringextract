@@ -74,16 +74,10 @@ typedef struct {
 
 } BearerToken;
 
-/// @brief standard routine used by most of RingEXtract's data fetching API
-/// @param token pointer to a BearerToken struct (can be just a skeleton)
-/// @param curl a CURL handle
-/// @return TokenError code
-TokenError rc_curl_auto_perform(BearerToken* token, CURL* curl);
-
 #define RC_TOKEN_SKELETON() &(BearerToken) \
 {                                          \
     .buffer = {0},                         \
-    .server_url = RC_ENDPOINT_TOKEN,       \
+    .server_url = RC_OAUTH_TOKEN,          \
     .client_id = RC_CLIENT_ID,             \
     .client_secret = RC_CLIENT_SECRET,     \
     .jwt = RC_JWT,                         \
@@ -92,4 +86,20 @@ TokenError rc_curl_auto_perform(BearerToken* token, CURL* curl);
     .s_token = RC_TOKEN_UNINITIALIZED      \
 }
 
-#endif
+#ifndef RINGEXTRACT_H // internal functions used within RingEXtract
+
+/// @brief standard fetch token/set token routine
+/// @param token pointer to a BearerToken struct (can be just a skeleton)
+/// @param curl a CURL handle
+/// @return TokenError code
+TokenError rc_curl_set_token(BearerToken* token, CURL* curl);
+
+/// @brief standard routine used by most of RingEXtract's data fetching API
+/// @param token pointer to a BearerToken struct (can be just a skeleton)
+/// @param curl a CURL handle
+/// @return TokenError code
+TokenError rc_curl_auto_perform(BearerToken* token, CURL* curl);
+
+#endif // RINGEXTRACT_H
+
+#endif // RC_BEARER_TOKEN_H

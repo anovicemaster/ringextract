@@ -92,6 +92,8 @@ typedef enum {
 
 } HTTPcode;
 
+#ifndef RINGEXTRACT_H // internal functions used within RingEXtract
+
 /// @brief implementation of recursive retry/timeout mechanism
 /// @param token pointer to a BearerToken struct
 /// @param curl a CURL handle
@@ -99,4 +101,6 @@ typedef enum {
 /// @param timeout minimum retry timeout (in seconds)
 void rc_curl_set_limit(BearerToken* token, CURL* curl, uint64_t attempt, uint64_t timeout);
 
-#endif
+#endif // RINGEXTRACT_H
+
+#endif // RC_RATE_LIMITER_H
