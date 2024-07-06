@@ -20,8 +20,8 @@ src = $(wildcard *.c)
 bin = example
 
 CC = gcc
-CFLAGS = -std=c17 -I$(vend)/include -I../src
-LDFLAGS = -L$(vend)/lib -L../src -lcurl -lringextract
+CFLAGS = -std=c17 -I../src -Wall -Wextra
+LDFLAGS = -L../src -lcurl -lringextract
 
 $(bin): $(src)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)

@@ -21,8 +21,8 @@ obj = $(src:.c=.o)
 lib = libringextract.a
 
 CC = gcc
-CFLAGS = -std=c17 -O2 -Wall -Wextra -I$(vend)/include
-LDFLAGS = -L$(vend)/lib -lcurl
+CFLAGS = -std=c17 -O2 -Wall -Wextra
+LDFLAGS = -lcurl
 ARFLAGS = rcs
 
 $(lib): $(obj)

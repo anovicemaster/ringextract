@@ -111,5 +111,3 @@ const char* rc_media_fwrite(MediaContent* media, const char* file) {
     } else { return NULL; }
 
 }
-
-void rc_media_free(MediaContent* media) { free(media->buffer); }

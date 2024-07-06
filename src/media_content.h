@@ -63,7 +63,7 @@ void rc_media_get_buffer(BearerToken* token, MediaContent* media, const char* ur
 /// @param token pointer to a BearerToken (can be just a skeleton)
 /// @param file full path & file name to be written
 /// @param url full url
-/// @return if written successfully, the file name ( same as the file argument);
+/// @return if written successfully, the file name (same as the file argument);
 ///         otherwise, NULL
 const char* rc_media_get_file(BearerToken* token, const char* file, const char* url);
 
@@ -74,10 +74,11 @@ const char* rc_media_get_file(BearerToken* token, const char* file, const char* 
 ///         otherwise, NULL
 const char* rc_media_fwrite(MediaContent* media, const char* file);
 
-/// @brief Free a MediaContent's buffer
-/// @param media pointer to a MediaContent container
-void rc_media_free(MediaContent* media);
-
+/// @brief Create and initialize a MediaContent container on the stack
+/// @param X initial buffer size to reserve (default is 1 megabyte)
+/// @return a pointer to the initialized MediaContent
+/// @note To accept default reserve buffer size (1 megabyte), pass in 0;
+///       Otherwise, pass in the desired reserve buffer size as a size_t
 #define RC_MEDIA_INIT(X) &(MediaContent)      \
 {                                             \
     .buffer = NULL,                           \
@@ -86,6 +87,8 @@ void rc_media_free(MediaContent* media);
     .total_size = 0                           \
 }
 
-#define RC_MEDIA_FREE(X) rc_media_free(X)
+/// @brief Free a MediaContent's buffer
+/// @param X pointer to a MediaContent container
+#define RC_MEDIA_FREE(X) free((X)->buffer)
 
 #endif

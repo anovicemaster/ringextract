@@ -195,5 +195,3 @@ const char* rc_json_fwrite(JsonContent* json, const char* file) {
     } else { return NULL; }
 
 }
-
-void rc_json_free(JsonContent* json) { free(json->buffer); }

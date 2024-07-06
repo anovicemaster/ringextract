@@ -76,14 +76,15 @@ const char* rc_json_get_file(BearerToken* token, const char* file, const char* u
 /// @brief Write JsonContent buffer to file
 /// @param json pointer to a JsonContent container
 /// @param file full path & file name to be written. If null, writing to stdout
-/// @return if written successfully, the file nmae (same as the file argument);
+/// @return if written successfully, the file name (same as the file argument);
 ///         otherwise, NULL
 const char* rc_json_fwrite(JsonContent* json, const char* file);
 
-/// @brief Free a JsonContent's buffer
-/// @param json pointer to a JsonContent container
-void rc_json_free(JsonContent* json);
-
+/// @brief Create and initialize a JsonContent container on the stack
+/// @param X initial buffer size to reserve (default is 1 megabyte)
+/// @return a pointer to the initialized JsonContent
+/// @note To accept default reserve buffer size (1 megabyte), pass in 0;
+///       Otherwise, pass in the desired reserve buffer size as a size_t
 #define RC_JSON_INIT(X) &(JsonContent)       \
 {                                            \
     .buffer = NULL,                          \
@@ -95,6 +96,8 @@ void rc_json_free(JsonContent* json);
     .url_next_page = NULL                    \
 }
 
-#define RC_JSON_FREE(X) rc_json_free(X)
+/// @brief Free a JsonContent's buffer
+/// @param X pointer to a JsonContent container
+#define RC_JSON_FREE(X) free((X)->buffer)
 
 #endif

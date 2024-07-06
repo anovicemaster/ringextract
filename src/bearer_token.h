@@ -74,6 +74,8 @@ typedef struct {
 
 } BearerToken;
 
+/// @brief Create a BearerToken skeleton on the stack
+/// @return a pointer to the created skeleton
 #define RC_TOKEN_SKELETON() &(BearerToken) \
 {                                          \
     .buffer = {0},                         \
