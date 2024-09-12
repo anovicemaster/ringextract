@@ -17,11 +17,11 @@
 #*
 
 all:
-	$(MAKE) -C src
+	$(MAKE) -C lib
 
 .PHONY: clean
 clean:
-	$(MAKE) clean -C src
+	$(MAKE) clean -C lib
 
 .PHONY: example
 example:

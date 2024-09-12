@@ -46,8 +46,9 @@
 #endif // RC_JWT
 
 // Authentication - OAuth 2.0
-#define RC_OAUTH_TOKEN  RC_SERVER_URL "/restapi/oauth/token"
-#define RC_OAUTH_REVOKE RC_SERVER_URL "/restapi/oauth/revoke"
+#define RC_OAUTH_TOKEN   RC_SERVER_URL "/restapi/oauth/token"
+#define RC_OAUTH_REVOKE  RC_SERVER_URL "/restapi/oauth/revoke"
+#define RC_OAUTH_WSTOKEN RC_SERVER_URL "/restapi/oauth/wstoken"
 
 /**
  * All endpoints/URLs defined below are provided solely for convenience.
